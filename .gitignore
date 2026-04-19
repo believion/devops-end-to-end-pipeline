@@ -1,0 +1,48 @@
+# 🔹 Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# 🔹 Virtual environments
+.venv/
+venv/
+env/
+
+# 🔹 uv
+# (IMPORTANT: keep uv.lock, do NOT ignore it)
+
+# 🔹 Environment variables
+.env
+.env.*
+
+# 🔹 OS files
+.DS_Store
+Thumbs.db
+
+# 🔹 Logs
+*.log
+
+# 🔹 VS Code
+.vscode/
+
+# 🔹 Docker
+*.tar
+*.gz
+
+# 🔹 Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform.lock.hcl
+
+# 🔹 Build / cache
+dist/
+build/
+.cache/
+
+# 🔹 Misc
+*.swp
+*.swo
