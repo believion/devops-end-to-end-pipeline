@@ -13,6 +13,22 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+resource "aws_ecr_repository" "ecr_repo" {
+  name = var.ecr_repo_name
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Name = "devops-pipeline"
+  }
+}
+
 # 🔐 Security Group
 resource "aws_security_group" "app_sg" {
   name = "app-sg"
