@@ -72,4 +72,4 @@ jobs:
           docker rm app || true
 
           # run new container
-          docker run -d -p 3000:5000 --name app $REPO:$TAG
+          docker run -d -p 5000:5000 --name app $REPO:$TAG
