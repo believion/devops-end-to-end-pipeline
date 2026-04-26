@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: devops-pipeline
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 🔐 Authenticate with AWS
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # 🐳 Login to ECR
+    - name: Login to ECR
+      run: |
+        aws ecr get-login-password --region $AWS_REGION | \
+        docker login --username AWS --password-stdin \
+        421085493654.dkr.ecr.$AWS_REGION.amazonaws.com
+
+    # 🏗️ Build Docker image
+    - name: Build image
+      run: |
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+    # 🏷️ Tag image for ECR
+    - name: Tag image
+      run: |
+        docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+        421085493654.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+    # 📤 Push image to ECR
+    - name: Push image
+      run: |
+        docker push 421085493654.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+    # 🚀 Deploy to EC2
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          AWS_REGION=ap-south-1
+          REPO=421085493654.dkr.ecr.$AWS_REGION.amazonaws.com/devops-pipeline
+          TAG=${{ github.sha }}
+
+          # login to ECR
+          aws ecr get-login-password --region $AWS_REGION | \
+          docker login --username AWS --password-stdin $REPO
+
+          # pull latest image
+          docker pull $REPO:$TAG
+
+          # stop old container
+          docker stop app || true
+          docker rm app || true
+
+          # run new container
+          docker run -d -p 3000:5000 --name app $REPO:$TAG
