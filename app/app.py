@@ -9,7 +9,7 @@ REQUEST_COUNT = Counter("app_requests_total", "Total number of requests")
 @app.route("/")
 def home():
     REQUEST_COUNT.inc()
-    return "DevOps Flask App Running 🚀"
+    return "Welcome to this flask app 🚀"
 
 @app.route("/health")
 def health():
