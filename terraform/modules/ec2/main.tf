@@ -14,8 +14,8 @@ resource "aws_security_group" "app_sg" {
 
   ingress {
     description = "Allow app traffic"
-    from_port   = 3000
-    to_port     = 3000
+    from_port   = 5000
+    to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -64,6 +64,8 @@ resource "aws_instance" "app_server" {
               #!/bin/bash
               yum update -y
               amazon-linux-extras install docker -y
+              systemctl start docker
+              systemctl enable docker
               service docker start
               usermod -a -G docker ec2-user
               EOF
